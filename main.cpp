@@ -12,6 +12,8 @@ int stock_producto[max_num]={}; //Cantidad
 float precio_producto[max_num]={}; //Precio
 std::string almacen_producto[max_num]={}; // Ubicación
 
+void guardar();
+
 int stringToInt( std::string cadena );
 int inicializador();
 int verifica_numericos(std::string mensaje);
@@ -23,16 +25,20 @@ void modificar_stock();
 
 int main() {
     std::cout << "---- Bienvenido al sistema de Inventario de El Martillo ---"<<std::endl;
+    std::cout << "Cargando inventario desde 'inventario.txt'..."<<std::endl;
     (n_load) = inicializador();
+    std::cout << "se cargaron :" <<n_load << " Productos"<<std::endl;
     while (true){     
         std::cout<<"--- Menú principal ---"<< std::endl<< std::endl; 
         
         std::cout << "Seleccione una opción:"<<std::endl;
         std::cout << "1. Consultar un producto"<<std::endl;
-        std::cout << "2. Actualizar inventariado"<<std::endl;
-        std::cout << "3. Generar reporte completo"<<std::endl;
-        std::cout << "4. Encontrar el producto más barato"<<std::endl;
-        std::cout << "5. Salir"<<std::endl<<std::endl;
+        std::cout << "2. Actualizar inventariado por ubicación"<<std::endl;
+        std::cout << "3. Generar reporte de bajo stock"<<std::endl;
+        
+        std::cout << "4. Generar reporte de bajo stock"<<std::endl;
+        std::cout << "5. Encontrar el producto más barato"<<std::endl;
+        std::cout << "6. Guardar y Salir"<<std::endl<<std::endl;
         int opcion=0;
 
         opcion = verifica_numericos("Opción seleccionada");
@@ -53,9 +59,12 @@ int main() {
             reporte();
             break;
         case 4:
-            buscar_mayor_precio();
+
             break;
         case 5:
+            buscar_mayor_precio();
+            break;
+        case 6:
             return 0; // pa cerrar eto. 
             break;
         default:
@@ -65,12 +74,11 @@ int main() {
     return 0;
 }
 
-
 void consulta_producto(){
     int codigo_consultado=0;
     int index_encontrado=-1; //inicializo en -1 por si hay algun error
     codigo_consultado=verifica_numericos("Ingrese el código del producto a consultar");
-    for (int i = 0; i < n_load+1; i++){
+    for (int i = 0; i < n_load; i++){
         //busca el codigo consultado si lo encuentra guarda el index
         if (codigo_producto[i] == codigo_consultado){
             index_encontrado = i;
@@ -113,7 +121,7 @@ int verifica_numericos(std::string mensaje){
 void buscar_mayor_precio(){
     int valor=5000, centinela=0;
 
-    for (int i = 0; i < n_load+1; i++){
+    for (int i = 0; i < n_load; i++){
         if (precio_producto[i]<valor){
             valor = precio_producto[i];
             centinela = i;
@@ -123,7 +131,7 @@ void buscar_mayor_precio(){
 }
 
 void reporte(){
-    std::cout<< "--- Reporte de Inventario ---"<< std::endl;
+    std::cout<< "--- Reporte de Inventario bajo ---"<< std::endl;
     std::cout<< std::left <<std::setw(9)<< "Codigo"<<"|"
                             << std::setw(25)<<"Nombre"<<"|"
                             << std::setw(9)<<"Stock"<<"|"
@@ -131,23 +139,26 @@ void reporte(){
                             << std::setw(9)<<"Ubicacion"<< std::endl;
     std::cout<< "-------------------------------------------------------"<< std::endl;
     //aqui use setw de la libreria iomanip para que se vea mas bonito
-    for (int i = 0; i < n_load+1; i++){
-        std::cout<< std::left <<std::setw(9)<< codigo_producto[i]<<"|"
-                                << std::setw(25)<<nombre_producto[i]<<"|"
-                                << std::setw(9)<<stock_producto[i]<<"|"
-                                << std::setw(9)<<precio_producto[i]<<"|"
-                                << std::setw(9)<<almacen_producto[i]<< std::endl;
+    for (int i = 0; i < n_load; i++){
+        if(stock_producto[i] <= 10){
+            std::cout<< std::left <<std::setw(9)<< codigo_producto[i]<<"|"
+            << std::setw(25)<<nombre_producto[i]<<"|"
+            << std::setw(9)<<stock_producto[i]<<"|"
+            << std::setw(9)<<precio_producto[i]<<"|"
+            << std::setw(9)<<almacen_producto[i]<< std::endl;
+        }
     }
     std::cout<<std::endl;
 }
 
 void modificar_stock(){
-    int codigo_consultado=0;
+    std::string ubi;
     int in_en=-1; //inicializo en -1 por si hay algun error
-    codigo_consultado=verifica_numericos("Ingrese el código del producto a actualizar");
-    for (int i = 0; i < n_load+1; i++){
+    std::cout << "Ingrese la ubicacion a modificar:";
+    std::cin >> ubi;
+    for (int i = 0; i < n_load; i++){
         //busca el codigo consultado si lo encuentra guarda el index
-        if (codigo_producto[i] == codigo_consultado){
+        if (almacen_producto[i] == ubi){
             in_en = i;
             //se cierra el ciclo por que ya para que voy a andar buscando
             break;
@@ -229,7 +240,20 @@ int inicializador(){
             }
         }
         std::cout<<dato<<std::endl;
-        return i;
+        return i+1;
     }
     return -1;
+}
+
+void guardar(){
+    std::ofstream guardar("data/aux.txt");
+    std::string todo = "Código,Nombre,Cantidad,Precio,Ubicación\n";
+    if(guardar.is_open()){
+        for (int i = 0; i < n_load; i++){
+            todo += codigo_producto[i]+","+nombre_producto[i]+","+std::to_string(stock_producto[i])+","+nombre_producto[i]+","
+        }
+        
+    }else{
+        std::cout << "No se pudo cerrar"<<std::endl;
+    }
 }
