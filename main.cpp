@@ -354,12 +354,6 @@ while (!bandera){
         default:
         break;
         }
-        std::cout<<etapa<<std::endl;
-        std::cout<<code<<std::endl;
-        std::cout<<nombre<<std::endl;
-        std::cout<<stock<<std::endl;
-        std::cout<<precio<<std::endl;
-        std::cout<<almacen<<std::endl;
     }
     codigo_producto[n_load] = code;
     nombre_producto[n_load] = nombre;
