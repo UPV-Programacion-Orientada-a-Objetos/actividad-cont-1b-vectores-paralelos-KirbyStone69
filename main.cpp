@@ -12,8 +12,8 @@ int stock_producto[max_num]={}; //Cantidad
 float precio_producto[max_num]={}; //Precio
 std::string almacen_producto[max_num]={}; // Ubicación
 
-void guardar();
-
+int guardar();
+void agregar();
 int stringToInt( std::string cadena );
 int inicializador();
 int verifica_numericos(std::string mensaje);
@@ -26,7 +26,12 @@ void modificar_stock();
 int main() {
     std::cout << "---- Bienvenido al sistema de Inventario de El Martillo ---"<<std::endl;
     std::cout << "Cargando inventario desde 'inventario.txt'..."<<std::endl;
-    (n_load) = inicializador();
+    n_load = inicializador();
+    if (n_load == -1){
+        std::cout << "No se encontro el archivo, consulte con un experto en sistemas c++ hechos en menos de 2 horas"<<std::endl;
+        return 0;
+    }
+    
     std::cout << "se cargaron :" <<n_load << " Productos"<<std::endl;
     while (true){     
         std::cout<<"--- Menú principal ---"<< std::endl<< std::endl; 
@@ -34,7 +39,7 @@ int main() {
         std::cout << "Seleccione una opción:"<<std::endl;
         std::cout << "1. Consultar un producto"<<std::endl;
         std::cout << "2. Actualizar inventariado por ubicación"<<std::endl;
-        std::cout << "3. Generar reporte de bajo stock"<<std::endl;
+        std::cout << "3. Registrar nuevo producto"<<std::endl;
         
         std::cout << "4. Generar reporte de bajo stock"<<std::endl;
         std::cout << "5. Encontrar el producto más barato"<<std::endl;
@@ -43,7 +48,7 @@ int main() {
 
         opcion = verifica_numericos("Opción seleccionada");
         if(opcion == -1){continue;}
-        if (!(opcion >= 1 && opcion<=5)){
+        if (!(opcion >= 1 && opcion<=6)){
             std::cout << "Esa opcion no existe"<<std::endl<<std::endl;
             continue;
         }
@@ -56,16 +61,20 @@ int main() {
             modificar_stock();
             break;
         case 3:
-            reporte();
+            agregar();
             break;
         case 4:
-
+            reporte();
             break;
         case 5:
             buscar_mayor_precio();
             break;
         case 6:
-            return 0; // pa cerrar eto. 
+        if(!(guardar() == -1)){
+            std::cout<<"⣿⣿⣿⣿⣿⢻⣿⣿⣿⣿⣿⣿⣆⠻⡫⣢⠿⣿⣿⣿⣿⣿⣿⣿⣷⣜⢻⣿\n⣿⣿⡏⣿⣿⣨⣝⠿⣿⣿⣿⣿⣿⢕⠸⣛⣩⣥⣄⣩⢝⣛⡿⠿⣿⣿⣆⢝\n⣿⣿⢡⣸⣿⣏⣿⣿⣶⣯⣙⠫⢺⣿⣷⡈⣿⣿⣿⣿⡿⠿⢿⣟⣒⣋⣙⠊\n⣿⡏⡿⣛⣍⢿⣮⣿⣿⣿⣿⣿⣿⣿⣶⣶⣶⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿\n⣿⢱⣾⣿⣿⣿⣝⡮⡻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠛⣋⣻⣿⣿⣿⣿\n⢿⢸⣿⣿⣿⣿⣿⣿⣷⣽⣿⣿⣿⣿⣿⣿⣿⡕⣡⣴⣶⣿⣿⣿⡟⣿⣿⣿\n⣦⡸⣿⣿⣿⣿⣿⣿⡛⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⣿⣿⣿\n⢛⠷⡹⣿⠋⣉⣠⣤⣶⣶⣿⣿⣿⣿⣿⣿⡿⠿⢿⣿⣿⣿⣿⣿⣷⢹⣿⣿\n⣷⡝⣿⡞⣿⣿⣿⣿⣿⣿⣿⣿⡟⠋⠁⣠⣤⣤⣦⣽⣿⣿⣿⡿⠋⠘⣿⣿\n⣿⣿⡹⣿⡼⣿⣿⣿⣿⣿⣿⣿⣧⡰⣿⣿⣿⣿⣿⣹⡿⠟⠉⡀⠄⠄⢿⣿\n⣿⣿⣿⣽⣿⣼⣛⠿⠿⣿⣿⣿⣿⣿⣯⣿⠿⢟⣻⡽⢚⣤⡞⠄⠄⠄⢸⣿\n";
+            std::cout<<"see you the next time, onichan\n";
+            return 0;
+            }
             break;
         default:
             break;
@@ -228,7 +237,6 @@ int inicializador(){
                 default:
                     break;
                 }
-
                 index_dato +=1;
                 dato = "";
                 if (c == '\n'){
@@ -239,21 +247,124 @@ int inicializador(){
                 dato += c;
             }
         }
+        almacen_producto[i] = dato;
         std::cout<<dato<<std::endl;
         return i+1;
     }
     return -1;
 }
 
-void guardar(){
-    std::ofstream guardar("data/aux.txt");
+int guardar(){
+    std::ofstream guardar("data/inventario.txt");
     std::string todo = "Código,Nombre,Cantidad,Precio,Ubicación\n";
     if(guardar.is_open()){
         for (int i = 0; i < n_load; i++){
-            todo += codigo_producto[i]+","+nombre_producto[i]+","+std::to_string(stock_producto[i])+","+nombre_producto[i]+","
+            std::stringstream ss;
+            ss <<std::fixed << std::setprecision(2) << precio_producto[i];
+            std::string precio_formateado = ss.str();
+            todo += std::to_string(codigo_producto[i])+","+nombre_producto[i]+
+            ","+std::to_string(stock_producto[i])+","+precio_formateado+
+            ","+almacen_producto[i];
+            if (!((i+1) >= n_load)){
+                todo +='\n';
+            }
         }
-        
+        guardar<<todo;
+        guardar.close();
+        return 1;
     }else{
-        std::cout << "No se pudo cerrar"<<std::endl;
+        std::cout << "No se pudo guardar"<<std::endl;
+        return -1;
     }
+}
+
+void agregar(){
+    int etapa=0;
+    int code=0;
+    std::string nombre="";
+    int stock=0;
+    float precio=0.00;
+    std::string almacen="",ss;
+    bool bandera=false;
+    bool bandera_red=false;
+
+while (!bandera){
+    switch (etapa){
+        case 0:
+            code = verifica_numericos("Ingrese el codigo");
+            if (code >= 1){
+                for (int i = 0; i < n_load; i++){
+                    if (code == codigo_producto[i]){
+                        std::cout << "Este codigo ya exite"<<std::endl;
+                        break;
+                    }
+                }
+            }else{
+                std::cout<< "No se puede añadir datos negativos"<<std::endl;
+                continue;
+            }
+            etapa++;
+        break;
+        case 1:
+            std::cin.ignore();
+            std::cout<<"Ingrese el nombre del producto:";
+            std::getline(std::cin,nombre);
+            etapa++;
+        break;
+        case 2:
+            stock = verifica_numericos("Ingrese la cantidad en stock");
+            if (stock >= 1){
+            }else{
+                std::cout<< "No se puede añadir cantidad negativa"<<std::endl;
+                continue;
+            }
+            etapa++;
+        break;
+        case 3:
+            std::cout<<"Ingrese el precio del producto:";
+            std::cin>>ss;
+            try {
+                precio = std::stof(ss);
+                if (precio >= 0.0f) {
+                    etapa++;
+                } else {
+                    std::cout << "No se puede añadir precio negativo" << std::endl;
+                }
+            }catch (const std::invalid_argument& e){
+                std::cout << "no se permiten caracteres" << std::endl;
+            }catch (const std::out_of_range& e){
+                std::cout << "Numero muy grande para usar" << std::endl;
+            }
+        break;
+        case 4:
+            std::cout<<"Ingrese la ubicacion del producto:";
+            std::cin>>almacen;
+                bandera_red=false;
+                for (int i = 0; i < n_load; i++){
+                    if (almacen == almacen_producto[i]){
+                        std::cout << "Este codigo ya exite"<<std::endl;
+                        bandera_red = true;
+                        break;
+                    }
+                }
+            if (!bandera_red){
+                bandera = true;
+            }            
+            break;
+        default:
+        break;
+        }
+        std::cout<<etapa<<std::endl;
+        std::cout<<code<<std::endl;
+        std::cout<<nombre<<std::endl;
+        std::cout<<stock<<std::endl;
+        std::cout<<precio<<std::endl;
+        std::cout<<almacen<<std::endl;
+    }
+    codigo_producto[n_load] = code;
+    nombre_producto[n_load] = nombre;
+    stock_producto[n_load] = stock;
+    precio_producto[n_load] = precio;
+    almacen_producto[n_load] = almacen;
+    n_load+=1;
 }

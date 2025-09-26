@@ -48,4 +48,4 @@ Código,Nombre,Cantidad,Precio,Ubicación
 147,Regleta con supresor,44,14.50,C-04
 148,Fusibles surtidos (caja),80,10.00,I-03
 149,Cinta aislante,115,2.50,I-04
-150,Timbre inalámbrico,16,65.00,A-08,
+150,Timbre inalámbrico,16,65.00,A-08
